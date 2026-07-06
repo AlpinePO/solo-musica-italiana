@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solo Musica Italiana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:   #0a1930;
+    --navy-mid:    #12233f;
+    --navy-panel:  #14283e;
+    --ivory:       #f2e9d8;
+    --ivory-dim:   #b9c2d4;
+    --gold:        #d1a24c;
+    --gold-bright: #e6bd6e;
+    --line:        rgba(242,233,216,0.14);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    height:100%;
+    margin:0;
+  }
+
+  body{
+    background:
+      radial-gradient(120% 90% at 50% -10%, var(--navy-mid) 0%, var(--navy-deep) 60%),
+      var(--navy-deep);
+    color:var(--ivory);
+    font-family:'Inter', system-ui, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:32px 20px;
+  }
+
+  .card{
+    width:100%;
+    max-width:420px;
+    background:linear-gradient(180deg, var(--navy-panel), rgba(18,35,63,0.6));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:40px 36px 34px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-60%;
+    left:-20%;
+    width:140%;
+    height:140%;
+    background:conic-gradient(from 200deg, transparent 0deg, rgba(209,162,76,0.06) 40deg, transparent 90deg);
+    pointer-events:none;
+  }
+
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 10px;
+    font-weight:600;
+  }
+
+  h1{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(28px, 6vw, 36px);
+    margin:0 0 6px;
+    color:var(--ivory);
+    line-height:1.15;
+  }
+
+  .subtitle{
+    font-size:13px;
+    color:var(--ivory-dim);
+    margin:0 0 34px;
+    letter-spacing:0.02em;
+  }
+
+  /* Status / frequency readout */
+  .status-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:30px;
+    font-size:12px;
+    color:var(--ivory-dim);
+    letter-spacing:0.06em;
+  }
+
+  .dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#5b6a85;
+    transition:background .25s ease, box-shadow .25s ease;
+  }
+
+  .dot.live{
+    background:#e2543a;
+    box-shadow:0 0 0 0 rgba(226,84,58,0.6);
+    animation:pulse 1.8s infinite;
+  }
+
+  @keyframes pulse{
+    0%   { box-shadow:0 0 0 0 rgba(226,84,58,0.5); }
+    70%  { box-shadow:0 0 0 8px rgba(226,84,58,0); }
+    100% { box-shadow:0 0 0 0 rgba(226,84,58,0); }
+  }
+
+  /* Main control row: play + vertical volume */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:38px;
+    margin-bottom:8px;
+  }
+
+  .play-btn{
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 70%);
+    border:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 12px 26px -8px rgba(209,162,76,0.55), inset 0 2px 3px rgba(255,255,255,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+    flex-shrink:0;
+  }
+
+  .play-btn:hover{ transform:translateY(-2px); }
+  .play-btn:active{ transform:translateY(0px) scale(0.97); }
+
+  .play-btn:focus-visible{
+    outline:3px solid var(--ivory);
+    outline-offset:4px;
+  }
+
+  .play-btn svg{ fill:var(--navy-deep); }
+
+  .volume-block{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+  }
+
+  .vol-slider-wrap{
+    height:120px;
+    width:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  input[type="range"].vertical{
+    -webkit-appearance:none;
+    appearance:none;
+    width:120px;
+    height:4px;
+    background:transparent;
+    transform:rotate(-90deg);
+    margin:0;
+  }
+
+  input[type="range"].vertical::-webkit-slider-runnable-track{
+    height:4px;
+    border-radius:2px;
+    background:linear-gradient(90deg, var(--gold) 0%, var(--gold) var(--fill,70%), rgba(242,233,216,0.15) var(--fill,70%));
+  }
+
+  input[type="range"].vertical::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:var(--ivory);
+    border:2px solid var(--gold);
+    margin-top:-6px;
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  input[type="range"].vertical::-moz-range-track{
+    height:4px;
+    border-radius:2px;
+    background:rgba(242,233,216,0.15);
+  }
+
+  input[type="range"].vertical::-moz-range-progress{
+    height:4px;
+    border-radius:2px;
+    background:var(--gold);
+  }
+
+  input[type="range"].vertical::-moz-range-thumb{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:var(--ivory);
+    border:2px solid var(--gold);
+    cursor:pointer;
+  }
+
+  .mute-btn{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:10px;
+    width:38px;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:var(--ivory-dim);
+    transition:color .15s ease, border-color .15s ease, background .15s ease;
+  }
+
+  .mute-btn:hover{
+    color:var(--ivory);
+    border-color:var(--gold);
+    background:rgba(209,162,76,0.08);
+  }
+
+  .mute-btn:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+
+  .mute-btn svg{ width:18px; height:18px; }
+
+  .foot{
+    margin-top:32px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    font-size:11px;
+    color:var(--ivory-dim);
+    letter-spacing:0.03em;
+  }
+
+  .foot span{ color:var(--gold); }
+
+  @media (prefers-reduced-motion: reduce){
+    .dot.live{ animation:none; }
+    .play-btn{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<main class="card">
+  <p class="eyebrow">Web Radio &middot; Italia</p>
+  <h1>Solo Musica Italiana</h1>
+  <p class="subtitle">Il meglio della musica italiana, in diretta</p>
+
+  <div class="status-row">
+    <span class="dot" id="liveDot"></span>
+    <span id="statusText">Pronto</span>
+  </div>
+
+  <div class="controls">
+    <button class="play-btn" id="playBtn" aria-label="Riproduci" aria-pressed="false">
+      <svg id="playIcon" width="28" height="28" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="stopIcon" width="24" height="24" viewBox="0 0 24 24" style="display:none;"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+    </button>
+
+    <div class="volume-block">
+      <div class="vol-slider-wrap">
+        <input type="range" class="vertical" id="volumeSlider" min="0" max="100" value="70" step="1"
+               aria-label="Livello volume" aria-orientation="vertical">
+      </div>
+      <button class="mute-btn" id="muteBtn" aria-label="Muto" aria-pressed="false">
+        <svg id="volIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16.5 12c0-1.77-1-3.29-2.5-4.03v8.06c1.5-.74 2.5-2.26 2.5-4.03z"/><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <svg id="muteIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M16.5 12c0-1.77-1-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.42.05-.63z"/><path d="M19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71z"/><path d="M4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4l-1.88 1.88L12 7.76V4z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <p class="foot">In diretta da <span>radioitaliasmi</span> &middot; flusso HLS</p>
+</main>
+
+<audio id="audio" preload="none"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js"></script>
+<script>
+(function(){
+  const STREAM_URL = "https://radioitaliasmi.akamaized.net/hls/live/2093120/RISMI/stream01/streamPlaylist.m3u8";
+
+  const audio        = document.getElementById('audio');
+  const playBtn       = document.getElementById('playBtn');
+  const playIcon       = document.getElementById('playIcon');
+  const stopIcon       = document.getElementById('stopIcon');
+  const muteBtn        = document.getElementById('muteBtn');
+  const volIcon        = document.getElementById('volIcon');
+  const muteIcon       = document.getElementById('muteIcon');
+  const volumeSlider   = document.getElementById('volumeSlider');
+  const statusText     = document.getElementById('statusText');
+  const liveDot        = document.getElementById('liveDot');
+
+  let hls = null;
+  let isPlaying = false;
+
+  audio.volume = volumeSlider.value / 100;
+
+  function setStatus(text, live){
+    statusText.textContent = text;
+    liveDot.classList.toggle('live', !!live);
+  }
+
+  function setSliderFill(){
+    volumeSlider.style.setProperty('--fill', volumeSlider.value + '%');
+  }
+  setSliderFill();
+
+  function initHls(){
+    if (window.Hls && Hls.isSupported()){
+      hls = new Hls({
+        liveSyncDurationCount: 3,
+        // hls.js automatically re-fetches and refreshes the live playlist
+        // on its own cadence, so new segments/updated .m3u8 are picked up
+        // without any extra code here.
+      });
+      hls.loadSource(STREAM_URL);
+      hls.attachMedia(audio);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, function(){
+        audio.play().catch(onPlayError);
+      });
+
+      hls.on(Hls.Events.ERROR, function(_event, data){
+        if (data.fatal){
+          switch(data.type){
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              setStatus('Errore di rete, nuovo tentativo…', false);
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              setStatus('Errore media, ripristino…', false);
+              hls.recoverMediaError();
+              break;
+            default:
+              setStatus('Impossibile riprodurre lo stream', false);
+              teardown();
+              break;
+          }
+        }
+      });
+    } else if (audio.canPlayType('application/vnd.apple.mpegurl')){
+      // Native HLS support (Safari)
+      audio.src = STREAM_URL;
+      audio.play().catch(onPlayError);
+    } else {
+      setStatus('HLS non supportato da questo browser', false);
+    }
+  }
+
+  function teardown(){
+    if (hls){
+      hls.destroy();
+      hls = null;
+    }
+    audio.removeAttribute('src');
+    audio.load();
+  }
+
+  function onPlayError(err){
+    setStatus('Tocca play per avviare', false);
+    setPlayingUI(false);
+  }
+
+  function setPlayingUI(playing){
+    isPlaying = playing;
+    playIcon.style.display = playing ? 'none' : 'block';
+    stopIcon.style.display = playing ? 'block' : 'none';
+    playBtn.setAttribute('aria-label', playing ? 'Ferma' : 'Riproduci');
+    playBtn.setAttribute('aria-pressed', String(playing));
+    setStatus(playing ? 'In diretta' : 'Fermato', playing);
+  }
+
+  playBtn.addEventListener('click', function(){
+    if (!isPlaying){
+      setStatus('Connessione…', false);
+      if (hls){
+        // Already initialized once before (user pressed stop) — resume loading
+        hls.startLoad();
+        audio.play().catch(onPlayError);
+      } else if (audio.src){
+        // Native Safari HLS path, already initialized once before
+        audio.play().catch(onPlayError);
+      } else {
+        // First-ever start
+        initHls();
+      }
+      setPlayingUI(true);
+    } else {
+      // Stop: halt playback and stop loading further segments to save bandwidth
+      audio.pause();
+      if (hls) hls.stopLoad();
+      setPlayingUI(false);
+    }
+  });
+
+  audio.addEventListener('waiting', function(){
+    if (isPlaying) setStatus('Buffering…', true);
+  });
+  audio.addEventListener('playing', function(){
+    if (isPlaying) setStatus('In diretta', true);
+  });
+
+  // Volume slider
+  volumeSlider.addEventListener('input', function(){
+    const v = Number(volumeSlider.value);
+    audio.volume = v / 100;
+    setSliderFill();
+    if (v === 0){
+      audio.muted = true;
+      volIcon.style.display = 'none';
+      muteIcon.style.display = 'block';
+      muteBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      audio.muted = false;
+      volIcon.style.display = 'block';
+      muteIcon.style.display = 'none';
+      muteBtn.setAttribute('aria-pressed', 'false');
+    }
+  });
+
+  // Mute toggle
+  muteBtn.addEventListener('click', function(){
+    audio.muted = !audio.muted;
+    const muted = audio.muted;
+    volIcon.style.display = muted ? 'none' : 'block';
+    muteIcon.style.display = muted ? 'block' : 'none';
+    muteBtn.setAttribute('aria-pressed', String(muted));
+  });
+})();
+</script>
+
+</body>
+</html>
